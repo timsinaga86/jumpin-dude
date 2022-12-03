@@ -11,7 +11,7 @@ public class jumpindude : MonoBehaviour
     /// <summary>
     /// Prefab for the orbs we will shoot
     /// </summary>
-    //public GameObject OrbPrefab;
+    public GameObject arrowPrefab;
 
     /// <summary>
     /// How fast our engines can accelerate us
@@ -26,11 +26,15 @@ public class jumpindude : MonoBehaviour
     /// <summary>
     /// How fast we should shoot our orbs
     /// </summary>
-    public float OrbVelocity = 10;
+    public float ArrowVelocity = 10;
 
     public float JumpVelocity = 10;
 
-    public int orb_count = 0;
+    public int arrow_count = 0;
+
+    public int health_count = 3;
+
+    public int level_count = 1;
 
     public Rigidbody2D body = null;
     /// <summary>
@@ -41,39 +45,39 @@ public class jumpindude : MonoBehaviour
     void FixedUpdate()
     {
         Manoeuvre();
-        //MaybeFire();
+        MaybeFire();
     }
 
     /// <summary>
     /// Fire if the player is pushing the button for the Fire axis
     /// Unlike the Enemies, the player has no cooldown, so they shoot a whole blob of orbs
     /// </summary>
-    //void MaybeFire()
-    //{
-    //    // TODO
-    //    if (Input.GetAxis("Fire1") == 1 && orb_count < 10)
-    //    {
-    //        FireOrb();
-    //        orb_count++;
-    //    }
-    //    else if (Input.GetAxis("Fire1") == 0)
-    //    {
-    //        orb_count = 0;
-    //    }
-    //}
+    void MaybeFire()
+    {
+        // TODO
+        if (Input.GetAxis("Fire1") == 1 && arrow_count < level_count)
+        {
+            ShootArrow();
+            arrow_count++;
+        }
+        else if (Input.GetAxis("Fire1") == 0)
+        {
+            arrow_count = 0;
+        }
+    }
 
     /// <summary>
     /// Fire one orb.  The orb should be placed one unit "in front" of the player.
     /// transform.right will give us a vector in the direction the player is facing.
     /// It should move in the same direction (transform.right), but at speed OrbVelocity.
     /// </summary>
-    //private void FireOrb()
-    //{
-    //    // TODO
-    //    GameObject orb = Instantiate(OrbPrefab, transform.position + transform.right, Quaternion.identity);
-    //    Rigidbody2D orb_body = orb.GetComponent<Rigidbody2D>();
-    //    orb_body.velocity = transform.right * OrbVelocity;
-    //}
+    private void ShootArrow()
+    {
+        // TODO
+        GameObject orb = Instantiate(arrowPrefab, transform.position + transform.right, Quaternion.identity);
+        Rigidbody2D orb_body = orb.GetComponent<Rigidbody2D>();
+        orb_body.velocity = transform.right * ArrowVelocity;
+    }
 
     /// <summary>
     /// Accelerate and rotate as directed by the player
@@ -102,4 +106,30 @@ public class jumpindude : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
     }
 
+
+    void OnBecameInvisible()
+    {
+        // TODO
+        Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.name.Equals("Arrow(Clone)"))
+        {
+            health_count--;
+            Health.SetHealth(health_count);
+        }
+
+        if (collision.collider.name.Equals("ExpOrb(Clone)"))
+        {
+            level_count++;
+            LevelCounter.SetLevel(level_count);
+        }
+
+        if (health_count == 0)
+        {
+            Time.timeScale = 0;
+        }
+    }
 }
